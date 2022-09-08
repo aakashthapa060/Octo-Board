@@ -1,5 +1,6 @@
 const User_Model = require("../database/connect.js");
 const create_token = require("../utils/createJWT_token.js");
+const hashPassword = require("../utils/hashPassword.js");
 const {
 	authErrorHandler
 } = require("../utils/ErrorHandler.js");
@@ -18,7 +19,8 @@ const create_user = async (req,res) => {
 		user_value.gender
 	];
 	try {
-		const user = await User_Model.query(QUERY, values)
+		values[4] = await hashPassword(values[4]);
+		const user = await User_Model.query(QUERY, values);
 		const token = create_token(user.user_id,MAX_AGE);
 		res.cookie("user_auth", token, {httpOnly: true, max_age: MAX_AGE});
 		res.status(201).json({user:user.rows[0]});
@@ -27,6 +29,23 @@ const create_user = async (req,res) => {
 		res.status(400).json({errors})
 	}
 }
+
+const authenticate_user = async (req,res) => {
+	let QUERY = "SELECT * FROM users WHERE email = $1";
+	const values = [req.body.email, req.body.password];
+	try {
+		const user = await User_Model.query(QUERY, values);
+		console.log(user.rows)
+		if(user.rows.length){
+			
+		}
+		res.status(200).json({user:user.rows[0]})
+	} catch(e) {
+		// statements
+		console.log(e);
+	}
+}
 module.exports = {
-	create_user
+	create_user,
+	authenticate_user
 }
