@@ -1,4 +1,6 @@
 const userRoute = require("./routes/users.js");
+const projectRoute = require("./routes/projects.js");
+
 const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser")
@@ -13,6 +15,8 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/projects", projectRoute);
+
 app.get("/", (req,res) => {
 	res.send("helo")
 })
