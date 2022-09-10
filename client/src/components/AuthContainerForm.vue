@@ -1,16 +1,16 @@
 <script setup>
-	const props = defineProps({
-		title: String,
-		des: String
-	})
+const props = defineProps({
+  title: String,
+  des: String,
+});
 </script>
 
 <template>
   <div class="container">
     <div class="user-form">
       <div class="user-form-header">
-        <h2>{{title}}</h2>
-        <p>{{des}}</p>
+        <h2>{{ title }}</h2>
+        <p>{{ des }}</p>
       </div>
       <slot></slot>
     </div>
