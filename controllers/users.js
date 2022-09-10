@@ -1,13 +1,40 @@
 const User_Model = require("../database/connect.js");
 const create_token = require("../utils/createJWT_token.js");
 const hashPassword = require("../utils/hashPassword.js");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+require("dotenv").config({});
+
 const {
 	authErrorHandler,
 	loginCredential_ErrorHandler
 } = require("../utils/ErrorHandler.js");
 
 
+const get_user = async (req,res) => {
+	const token = req.cookies.user_auth;
+	const QUERY = "SELECT user_name FROM users WHERE user_id = $1";
+	const values = []
+	let user = null;
+	try {
+		if(token) {
+			jwt.verify(token, process.env.JWT_SECRECT_KEY, async (err,decoded) => {
+				if(err){
+					res.status(400).json({status: "Not Authenticated"})
+				}
+				else{
+					console.log(decoded)
+					values.push(decoded.user_id)
+					user = await User_Model.query(QUERY,values);
+					res.status(200).json({user:user.rows})
+				}
+			})
+		}
+	} catch(e) {
+		user = null;
+		res.status(400).json({status: "Not Authenticated"})
+	}
+}
 const MAX_AGE = 60 * 60 * 24;
 
 const create_user = async (req,res) => {
@@ -24,7 +51,8 @@ const create_user = async (req,res) => {
 	try {
 		values[4] = await hashPassword(values[4]);
 		const user = await User_Model.query(QUERY, values);
-		const token = create_token(user.user_id,MAX_AGE);
+		console.log(user.rows[0].user_id)
+		const token = create_token(user.rows[0].user_id,MAX_AGE);
 		res.cookie("user_auth", token, {httpOnly: true, maxAge: MAX_AGE * 1000});
 		res.status(201).json({user:user.rows[0]});
 	} catch(e) {
@@ -46,7 +74,7 @@ const authenticate_user = async (req,res) => {
 
 		// Throwing an Error If The Password didn't match
 		if(!validate) throw Error("PASSWORD NOT MATCH");
-		const token = create_token(user.user_id,MAX_AGE);
+		const token = create_token(user.rows[0].user_id,MAX_AGE);
 		res.cookie("user_auth", token, {httpOnly: true, maxAge: MAX_AGE * 1000});
 		res.status(200).json({message: "Success"})
 
@@ -62,6 +90,7 @@ const logout_user = async(req,res) => {
 }
 
 module.exports = {
+	get_user,
 	create_user,
 	authenticate_user,
 	logout_user
