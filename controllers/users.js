@@ -13,6 +13,7 @@ const {
 
 const get_user = async (req,res) => {
 	const token = req.cookies.user_auth;
+	console.log("TOKEN: ", token)
 	const QUERY = "SELECT user_name FROM users WHERE user_id = $1";
 	const values = []
 	let user = null;
@@ -20,7 +21,7 @@ const get_user = async (req,res) => {
 		if(token) {
 			jwt.verify(token, process.env.JWT_SECRECT_KEY, async (err,decoded) => {
 				if(err){
-					res.status(400).json({status: "Not Authenticated"})
+					res.status(401).json({status: "Not Authenticated", redirect: true})
 				}
 				else{
 					console.log(decoded)
@@ -30,11 +31,14 @@ const get_user = async (req,res) => {
 				}
 			})
 		}
+		else{
+			res.status(401).json({status: "Not Authenticated", redirect: true})
+		}
 	} catch(e) {
-		user = null;
-		res.status(400).json({status: "Not Authenticated"})
+		console.log(e)
 	}
 }
+
 const MAX_AGE = 60 * 60 * 24;
 
 const create_user = async (req,res) => {

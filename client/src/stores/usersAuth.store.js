@@ -2,8 +2,10 @@ import { ref, computed } from "vue";
 import { defineStore } from "pinia";
 
 export const userStore = defineStore("user", () => {
-	const user = ref("");
-	const isAuthenticated = ref(false); 
+	const user = ref(null);
+	const isAuthenticated = ref(false);
+
+
 	
 	async function getUser () {
 		const user_uri = "http://localhost:3000/api/v1/users/user";
@@ -23,17 +25,15 @@ export const userStore = defineStore("user", () => {
 	function checkUser(){
 		getUser()
 		.then(res => {
-			console.log(res)
-			user.value = res.user[0].user_name
 			if(res.user){
+				user.value = res.user[0].user_name
 				isAuthenticated.value = true
 			}
 			else{
 				isAuthenticated.value = false
+
 			}
 		})
 	}
-
-
 	return {user,isAuthenticated,checkUser}
 })

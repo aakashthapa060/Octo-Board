@@ -1,5 +1,16 @@
 const Project_Model = require("../database/connect.js");
 
+const get_all_projects = async(req,res) => {
+	let QUERY = "SELECT * FROM projects WHERE superuser_uuid = $1";
+	let values = [res.locals.user];
+	try {
+		const projects = await Project_Model.query(QUERY, values);
+		res.status(200).json({proejcts: projects.rows})
+	} catch(e) {
+		// statements
+		console.log(e);
+	}
+}
 const create_project = async (req,res) => {
 	let QUERY = "INSERT INTO projects (project_id, project_name, project_description, project_status, superuser_uuid) VALUES (uuid_generate_v4(), $1, $2, $3, $4) RETURNING *";
 	const project_value = req.body;
@@ -21,5 +32,6 @@ const create_project = async (req,res) => {
 
 
 module.exports = {
+	get_all_projects,
 	create_project
 }

@@ -1,9 +1,9 @@
 const userRoute = require("./routes/users.js");
 const projectRoute = require("./routes/projects.js");
-
+const {requireAuth} = require("./middleware/authMiddleware.js");
 const express = require("express");
 const dotenv = require("dotenv");
-const cookieParser = require("cookie-parser")
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const app = express();
 dotenv.config({});
@@ -14,12 +14,13 @@ const corsConfig = {
     origin: true,
 };
 app.use(cors(corsConfig));
-app.use(express.json())
+app.use(express.json());
 app.use(cookieParser());
+
 
 // Routes
 app.use("/api/v1/users", userRoute);
-app.use("/api/v1/projects", projectRoute);
+app.use("/api/v1/projects", requireAuth, projectRoute);
 
 app.get("/", (req,res) => {
 	res.send("helo")

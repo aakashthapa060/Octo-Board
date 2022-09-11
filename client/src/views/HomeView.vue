@@ -1,17 +1,21 @@
 <script setup>
   import {onMounted} from 'vue'
-  import {userStore} from '../stores/usersAuth.js';
+  import {userStore} from '../stores/usersAuth.store.js';
   const userAuth = userStore();
   
-  onMounted(async () => {
-    const user_uri = "http://localhost:3000/api/v1/users/user";
+  onMounted(async()=> {
+    const projects_uri = "http://localhost:3000/api/v1/projects/projects";
     try {
-      const response = await fetch(user_uri, {
-        method: "GET",
-        credentials:"include"
+      const response = await fetch(projects_uri, {
+        credentials: "include"
       });
-      const data = response.json();
-      console.log(data);
+      const data = await response.json();
+      if(data.status && data.redirect){
+        window.location.href = "/login"
+      }
+      else{
+        
+      }
     } catch(e) {
       // statements
       console.log(e);
